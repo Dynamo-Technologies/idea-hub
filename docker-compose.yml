@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - ORIGIN=http://localhost:3000
+      - PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL:-https://placeholder.supabase.co}
+      - PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY:-placeholder-key}
+    restart: unless-stopped

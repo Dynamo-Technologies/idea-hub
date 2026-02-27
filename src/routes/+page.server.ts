@@ -15,32 +15,34 @@ export const actions: Actions = {
 
 		const formData = await request.formData();
 		const name = (formData.get('name') as string)?.trim();
+		const email = (formData.get('email') as string)?.trim();
 		const contract = (formData.get('contract') as string)?.trim();
 		const description = (formData.get('description') as string)?.trim();
 
 		const errors: Record<string, string> = {};
 
 		if (!name) errors.name = 'Your name is required';
+		if (!email) errors.email = 'Email is required';
 		if (!contract) errors.contract = 'Contract / Use Case is required';
 		if (!description) errors.description = 'Description is required';
 
 		if (Object.keys(errors).length > 0) {
-			return fail(400, { errors, name, contract, description });
+			return fail(400, { errors, name, email, contract, description });
 		}
 
 		const { data: inserted, error } = await locals.supabase
 			.from('ideas')
-			.insert({ name, contract, description })
+			.insert({ name, email, contract, description })
 			.select();
 
 		if (error) {
 			console.error('Supabase insert error:', error);
-			return fail(500, { errors: { form: `Failed to submit: ${error.message}` }, name, contract, description });
+			return fail(500, { errors: { form: `Failed to submit: ${error.message}` }, name, email, contract, description });
 		}
 
 		if (!inserted || inserted.length === 0) {
 			console.error('Insert returned no rows — check RLS policies');
-			return fail(500, { errors: { form: 'Failed to submit idea. Check database permissions.' }, name, contract, description });
+			return fail(500, { errors: { form: 'Failed to submit idea. Check database permissions.' }, name, email, contract, description });
 		}
 
 		return { success: true };

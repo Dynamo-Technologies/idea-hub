@@ -83,6 +83,25 @@
 						{/if}
 					</div>
 
+					<!-- Email -->
+					<div>
+						<label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+							Email
+						</label>
+						<input
+							type="email"
+							id="email"
+							name="email"
+							required
+							value={form?.email ?? ''}
+							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-input px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+							placeholder="e.g. jane.smith@dynamo.works"
+						/>
+						{#if form?.errors?.email}
+							<p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{form.errors.email}</p>
+						{/if}
+					</div>
+
 					<!-- Contract / Use Case -->
 					<div>
 						<label for="contract" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

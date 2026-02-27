@@ -34,7 +34,7 @@
 				<!-- Page Title -->
 				<div class="mb-8">
 					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Submit an Idea</h1>
-					<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Share your idea with the team</p>
+					<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Share your idea with the Innovation team</p>
 				</div>
 
 				<!-- Success Banner -->
@@ -73,6 +73,7 @@
 							type="text"
 							id="name"
 							name="name"
+							required
 							value={form?.name ?? ''}
 							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-input px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
 							placeholder="e.g. Jane Smith"
@@ -91,6 +92,7 @@
 							type="text"
 							id="contract"
 							name="contract"
+							required
 							value={form?.contract ?? ''}
 							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-input px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
 							placeholder="e.g. Project Atlas — Phase 2"
@@ -108,9 +110,10 @@
 						<textarea
 							id="description"
 							name="description"
+							required
 							rows="6"
 							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-input px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors min-h-[200px] resize-y"
-							placeholder="Describe your idea in detail — what problem does it solve, how would it work, and what's the expected impact?"
+							placeholder="Describe your idea in detail — what is the problem, how can we solve it, how would it work, and what's the expected impact?"
 						>{form?.description ?? ''}</textarea>
 						{#if form?.errors?.description}
 							<p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{form.errors.description}</p>

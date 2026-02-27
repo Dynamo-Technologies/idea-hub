@@ -28,8 +28,20 @@ export const actions: Actions = {
 			return fail(400, { errors, name, contract, description });
 		}
 
-		// In a real app, save to Supabase database here
-		// await locals.supabase.from('ideas').insert({ name, contract, description, user_id: locals.user?.id });
+		const { data: inserted, error } = await locals.supabase
+			.from('ideas')
+			.insert({ name, contract, description })
+			.select();
+
+		if (error) {
+			console.error('Supabase insert error:', error);
+			return fail(500, { errors: { form: `Failed to submit: ${error.message}` }, name, contract, description });
+		}
+
+		if (!inserted || inserted.length === 0) {
+			console.error('Insert returned no rows — check RLS policies');
+			return fail(500, { errors: { form: 'Failed to submit idea. Check database permissions.' }, name, contract, description });
+		}
 
 		return { success: true };
 	}

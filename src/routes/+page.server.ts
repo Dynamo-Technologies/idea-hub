@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -6,6 +7,73 @@ export const load: PageServerLoad = async ({ locals }) => {
 		redirect(303, '/login');
 	}
 };
+
+async function createJiraTicket(idea: { name: string; email: string; contract: string; description: string }) {
+	const jiraUrl = env.JIRA_URL;
+	const jiraEmail = env.JIRA_EMAIL;
+	const jiraToken = env.JIRA_API_TOKEN;
+	const projectKey = env.JIRA_PROJECT_KEY;
+
+	if (!jiraUrl || !jiraEmail || !jiraToken || !projectKey) {
+		console.warn('Jira environment variables not configured, skipping ticket creation');
+		return null;
+	}
+
+	const auth = Buffer.from(`${jiraEmail}:${jiraToken}`).toString('base64');
+
+	const response = await fetch(`${jiraUrl}/rest/api/3/issue`, {
+		method: 'POST',
+		headers: {
+			'Authorization': `Basic ${auth}`,
+			'Content-Type': 'application/json',
+			'Accept': 'application/json'
+		},
+		body: JSON.stringify({
+			fields: {
+				project: { key: projectKey },
+				summary: `[Idea Hub] ${idea.contract} — ${idea.name}`,
+				description: {
+					type: 'doc',
+					version: 1,
+					content: [
+						{
+							type: 'paragraph',
+							content: [
+								{ type: 'text', text: 'Submitted by: ', marks: [{ type: 'strong' }] },
+								{ type: 'text', text: `${idea.name} (${idea.email})` }
+							]
+						},
+						{
+							type: 'paragraph',
+							content: [
+								{ type: 'text', text: 'Contract / Use Case: ', marks: [{ type: 'strong' }] },
+								{ type: 'text', text: idea.contract }
+							]
+						},
+						{
+							type: 'paragraph',
+							content: [
+								{ type: 'text', text: 'Description: ', marks: [{ type: 'strong' }] },
+								{ type: 'text', text: idea.description }
+							]
+						}
+					]
+				},
+				issuetype: { name: 'Task' }
+			}
+		})
+	});
+
+	if (!response.ok) {
+		const errorText = await response.text();
+		console.error('Jira ticket creation failed:', errorText);
+		return null;
+	}
+
+	const data = await response.json();
+	console.log('Jira ticket created:', data.key);
+	return data.key;
+}
 
 export const actions: Actions = {
 	submit: async ({ request, locals }) => {
@@ -45,6 +113,9 @@ export const actions: Actions = {
 			return fail(500, { errors: { form: 'Failed to submit idea. Check database permissions.' }, name, email, contract, description });
 		}
 
-		return { success: true };
+		// Create Jira ticket (non-blocking — don't fail the submission if Jira fails)
+		const jiraKey = await createJiraTicket({ name, email, contract, description });
+
+		return { success: true, jiraKey };
 	}
 };

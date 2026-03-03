@@ -72,6 +72,17 @@ async function createJiraTicket(idea: { name: string; email: string; contract: s
 
 	const data = await response.json();
 	console.log('Jira ticket created:', data.key);
+
+	// Move ticket to "Ideas" column (transition ID 4)
+	await fetch(`${jiraUrl}/rest/api/3/issue/${data.key}/transitions`, {
+		method: 'POST',
+		headers: {
+			'Authorization': `Basic ${auth}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ transition: { id: '4' } })
+	});
+
 	return data.key;
 }
 

@@ -2,7 +2,14 @@
 	import { enhance } from '$app/forms';
 	import Spinner from '$lib/components/Spinner.svelte';
 
-	let { form } = $props();
+	let { data, form } = $props();
+	let user = $derived(data.user);
+	let userEmail = $derived(user?.email ?? '');
+	let userName = $derived(
+		user?.user_metadata?.full_name ??
+		user?.user_metadata?.name ??
+		(userEmail ? userEmail.split('@')[0].split('.').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') : '')
+	);
 
 	let loading = $state(false);
 	let showSuccess = $state(false);
@@ -56,8 +63,10 @@
 						return async ({ update, result }) => {
 							loading = false;
 							if (result.type === 'success') {
-								const formEl = document.querySelector('form') as HTMLFormElement;
-								formEl?.reset();
+								const contractEl = document.getElementById('contract') as HTMLInputElement;
+								const descEl = document.getElementById('description') as HTMLTextAreaElement;
+								if (contractEl) contractEl.value = '';
+								if (descEl) descEl.value = '';
 							}
 							await update();
 						};
@@ -74,9 +83,9 @@
 							id="name"
 							name="name"
 							required
-							value={form?.name ?? ''}
-							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-input px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-							placeholder="e.g. Jane Smith"
+							readonly
+							value={form?.name ?? userName}
+							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-dark-header px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none cursor-default"
 						/>
 						{#if form?.errors?.name}
 							<p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{form.errors.name}</p>
@@ -93,9 +102,9 @@
 							id="email"
 							name="email"
 							required
-							value={form?.email ?? ''}
-							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-input px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-							placeholder="e.g. jane.smith@dynamo.works"
+							readonly
+							value={form?.email ?? userEmail}
+							class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-dark-header px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none cursor-default"
 						/>
 						{#if form?.errors?.email}
 							<p class="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">{form.errors.email}</p>
